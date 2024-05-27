@@ -38,7 +38,7 @@ export async function GET(request: Request) {
 
     const existingVerifiedUser = await UserModel.findOne({
       username,
-      isverified: true,
+      isVerified: true,
     });
 
     if (existingVerifiedUser) {
@@ -69,4 +69,3 @@ export async function GET(request: Request) {
     );
   }
 }
-
