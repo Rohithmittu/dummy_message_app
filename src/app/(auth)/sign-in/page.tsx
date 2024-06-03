@@ -1,11 +1,9 @@
-"use-client"
-
 import React from 'react'
 
-function page() {
+const signIn = () => {
   return (
-    <div>page</div>
+    <div>signIn</div>
   )
 }
 
-export default page
+export default signIn
