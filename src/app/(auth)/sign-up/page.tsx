@@ -3,15 +3,16 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Form, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { useDebounceValue } from "usehooks-ts";
+import { useDebounceCallback } from "usehooks-ts";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 import { signUpSchema } from "@/schemas/signupSchema";
 import axios, { AxiosError } from "axios";
 import { ApiResponse } from "@/types/ApiResponse";
 import {
+  Form,
   FormField,
   FormItem,
   FormLabel,
@@ -27,7 +28,7 @@ function page() {
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const debouncedUsername = useDebounceValue(username, 1000);
+  const debounced = useDebounceCallback(setUsername, 1000);
   const { toast } = useToast();
   const router = useRouter();
 
@@ -42,14 +43,17 @@ function page() {
 
   useEffect(() => {
     const checkUsernameUnique = async () => {
-      if (debouncedUsername) {
+      if (username) {
         setIsCheckingUsername(true);
         setUsernameMessage("");
 
         try {
           const response = await axios.get(
-            `/api/check-username-unique?username=${debouncedUsername}`
+            `/api/check-username-unique?username=${username}`
           );
+          // if errro ocurs
+          // let message = response.data.message
+          // setUsernameMessage(message);
           setUsernameMessage(response.data.message);
         } catch (error) {
           const axiosError = error as AxiosError<ApiResponse>;
@@ -62,7 +66,7 @@ function page() {
       }
     };
     checkUsernameUnique();
-  }, [debouncedUsername]);
+  }, [username]);
 
   const onSubmit = async (data: z.infer<typeof signUpSchema>) => {
     // after the feature check this onsubmit which one it is
@@ -70,8 +74,8 @@ function page() {
     setIsSubmitting(true);
 
     try {
-      const response = await axios.post("/api/sign-up", data);
-      console.log(response);
+      const response = await axios.post<ApiResponse>("/api/signup", data);
+      console.log("response1",response);
       toast({
         title: "Success",
         description: response.data.message,
@@ -80,10 +84,12 @@ function page() {
       router.replace(`/verify/${username}`);
       setIsSubmitting(false);
     } catch (error) {
-      console.log("Error in signup of user", error);
+      // console.log("Error in signup of user", error);
       const axiosError = error as AxiosError<ApiResponse>;
+      console.log("error1", axiosError);
 
       let errorMessage = axiosError.response?.data.message;
+
       toast({
         title: "Signup failed",
         description: errorMessage,
@@ -115,14 +121,14 @@ function page() {
                     {...field}
                     onChange={(e) => {
                       field.onChange(e);
-                      setUsername(e.target.value);
+                      debounced(e.target.value);
                     }}
                   />
                   {isCheckingUsername && <Loader2 className="animate-spin" />}
                   {!isCheckingUsername && usernameMessage && (
                     <p
                       className={`text-sm ${
-                        usernameMessage === "Username is unique"
+                        usernameMessage === "Username is avalable"
                           ? "text-green-500"
                           : "text-red-500"
                       }`}
