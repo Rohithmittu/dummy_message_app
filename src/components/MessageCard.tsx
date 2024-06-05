@@ -24,9 +24,10 @@ import { useToast } from "./ui/use-toast";
 import axios from "axios";
 import { ApiResponse } from "@/types/ApiResponse";
 
+
 type MesssageCardProps = {
   message: Message;
-  onMessageDelete: (messageId: string) => void;
+  onMessageDelete: (messageId: string) => void
 };
 
 const MessageCard = ({ message, onMessageDelete }: MesssageCardProps) => {
@@ -34,13 +35,14 @@ const MessageCard = ({ message, onMessageDelete }: MesssageCardProps) => {
 
   const handleDeleteConfirm = async () => {
     const response = await axios.delete<ApiResponse>(
-      `/api/delete-message/${message._id}}`
+      `/api/delete-message/${message._id}`
     );
     toast({
       title: response.data.message,
     });
-    onMessageDelete(message._id);
-  };
+    // onMessageDelete(message.id)
+    onMessageDelete(message._id)
+  } 
 
   return (
     <Card>
