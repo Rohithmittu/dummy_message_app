@@ -40,8 +40,10 @@ const MessageCard = ({ message, onMessageDelete }: MesssageCardProps) => {
     toast({
       title: response.data.message,
     });
-    // onMessageDelete(message.id)
-    onMessageDelete(message._id)
+    console.log(message._id)
+
+    onMessageDelete(message.id)
+    // onMessageDelete(message._id) // consolog message once
   } 
 
   return (
